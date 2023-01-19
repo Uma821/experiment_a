@@ -1,4 +1,5 @@
-import time
+import time, sys # これは消さないし，絶対最初に置いとく
+sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait

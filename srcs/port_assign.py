@@ -1,3 +1,5 @@
+import sys # これは消さないし，絶対最初に置いとく
+sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 # import spidev
 
 CDS_PORT = None
@@ -16,6 +18,3 @@ def analog_read(channel):
   r = spi.xfer2(words)
   adc_out = ((r[1] & 0x0f) << 8) + r[2]
   return adc_out
-
-if __name__ == "__main__": # テストするならif文内に
-  pass

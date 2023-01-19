@@ -1,3 +1,5 @@
+import sys # これは消さないし，絶対最初に置いとく
+sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 from time import sleep
 from LCDLib import LCD1602A
 

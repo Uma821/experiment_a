@@ -1,3 +1,5 @@
+import sys # これは消さないし，絶対最初に置いとく
+sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 import port_assign # 何番ポートか参照
 from time import sleep
 

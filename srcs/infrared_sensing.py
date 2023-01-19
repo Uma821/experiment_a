@@ -1,4 +1,6 @@
-# import spidev
+import sys # これは消さないし，絶対最初に置いとく
+sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
+import spidev
 from port_assign import analog_read # 何番ポートか参照
 
 def infrared_sensing(): # 人感センサーで人を確認
