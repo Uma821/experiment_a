@@ -3,10 +3,14 @@ sys.dont_write_bytecode = True # これは消さない，絶対最初に置い�
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-import platform 
+import platform
+from bs4 import BeautifulSoup
 
 
 def find_bus_data(page_source):
+  daiya_list = BeautifulSoup(page_source, "html.perser").find(id="approach_list_for_daiya")
+  for daiya in daiya_list.find_all("li"):
+    daiya
   return [()] # (後なん分，時間，目標時間) 
 
 def scraping_kuruken(sites):
@@ -22,7 +26,7 @@ def scraping_kuruken(sites):
     service = Service(ChromeDriverManager().install())
 
   driver = webdriver.Chrome(options=options, service=service)
-  return [find_bus_data([driver.get(site), time.sleep(20), driver.page_source][2]) for site in sites]
+  return [[driver.get(site), time.sleep(20), driver.page_source][2] for site in sites]
 
 if __name__ == "__main__": # テストするならこのif文の中で
   print(scraping_kuruken(["https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1"]))
