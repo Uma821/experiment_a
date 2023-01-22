@@ -21,39 +21,37 @@ def onkai(n):
 
 def buzzer_ring(stop_flag): # ブザーを鳴らす
   base_time = 0.5 # 秒
+  DO = onkai(27)
+  RE = onkai(29)
+  MI = onkai(31)
+  SO = onkai(34)
+
+  mery_merody = [MI,RE,DO,RE,MI,MI,MI,RE,RE,MI,SO,SO,MI,RE,DO,RE,MI,MI,MI,RE,RE,MI,RE,DO]
+  mery_rhythm = [0.9,0.3,0.6,0.6,0.6,0.6,1.2,0.6,0.6,1.2,0.6,0.6,1.2,0.6,0.6,1.2,0.9,0.3,0.6,0.6,0.6,0.6,1.2,0.6,0.6,0.9,0.3,1.8]
+
   tones_list = [
     (440, 1), # 440Hzを0.5秒
     (220, 2), # 220Hzを1秒
-    ]
+  ] 
+
+  GPIO.setmode(GPIO.BCM)
+  GPIO.setup(port_assign.BUZZER_PORT, GPIO.OUT)
+
   for (tone, time) in tones_list:
+    p = GPIO.PWM(port_assign.BUZZER_PORT, int(tone))
+    p.start(50) # PWM = 50%
+    sleep(time*base_time)
+    p.stop()
      #HIGH, LOWをちゃんと制御するか，PWMで制御するのもありかもしれない
     if stop_flag: # 一音分終わったらチェックして終了（これは放置）
       break
 
+  GPIO.stop()
+
 if __name__ == "__main__": # テストするならif文内に
   try:
-    pin = 21
-    a0 = 27.500
 
-    DO = onkai(27)
-    RE = onkai(29)
-    MI = onkai(31)
-    SO = onkai(34)
-
-    mery_merody = [MI,RE,DO,RE,MI,MI,MI,RE,RE,MI,SO,SO,MI,RE,DO,RE,MI,MI,MI,RE,RE,MI,RE,DO]
-    mery_rhythm = [0.9,0.3,0.6,0.6,0.6,0.6,1.2,0.6,0.6,1.2,0.6,0.6,1.2,0.6,0.6,1.2,0.9,0.3,0.6,0.6,0.6,0.6,1.2,0.6,0.6,0.9,0.3,1.8]
-
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(pin, GPIO.OUT)
-
-    for merody in mery_merody:
-      p = GPIO.PWM(pin, int(merody))
-      p.start(0)
-      p.ChangeDutyCycle(0.5)
-      sleep(1)
-      p.stop()
+    buzzer_ring()
 
   except KeyboardInterrupt:
     pass
-
-  p.stop()

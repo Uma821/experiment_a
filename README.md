@@ -22,3 +22,10 @@ python2系と3系が共存している可能性がある場合， `sudo pip3 ins
 また、chromiumとバージョンが合わない場合は
 `sudo apt-get install chromium-browser`
 を行ってください。
+
+## 動作環境
+
+Python==
+Flask==1.0.2
+line-bot-sdk==1.8.0
+urllib3==1.23
