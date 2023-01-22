@@ -5,10 +5,10 @@ sys.dont_write_bytecode = True # これは消さない，絶対最初に置い�
 CDS_PORT = None
 # LCD_PORT = None # I2Cのため必要ない
 
-RLED_PORT = None # フルカラー赤
-GLED_PORT = None # フルカラー緑
-BLED_PORT = None # フルカラー青
-BUZZER_PORT = None
+RLED_PORT = 24 # フルカラー赤
+GLED_PORT = 23 # フルカラー緑
+BLED_PORT = 18 # フルカラー青
+BUZZER_PORT = 21
 
 INFRARED_PORT = None # 人感センサー
 
