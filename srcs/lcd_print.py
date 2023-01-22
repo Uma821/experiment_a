@@ -7,8 +7,18 @@ def LCD_print(message, lcd_on): # LCDに文字列表示，message[0]に1行目�
   # 第二回資料を参照のこと
   # 半角カタカナを使いますので，一度試して，うまく行かなかったら言ってください
   # 例：ﾋｮｳｼﾞﾃﾞｷﾃﾙｶｲ
+  lcd = LCD1602A()
+  lcd.setup()
 
-  pass # 何か書くとき消す
+  for _ in range(3):
+    lcd.clear()
+    sleep(0.3)
+    lcd.write_string("Welcome to")
+    lcd.newline()
+    lcd.write_string("Jikken Alphal!")
+    sleep(0.7)
+
+   # 何か書くとき消す
 
 if __name__ == "__main__": # テストするならif文内に
   pass
