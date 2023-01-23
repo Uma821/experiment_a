@@ -45,6 +45,7 @@ def led_brink(quit_flag, duty, mode, color): # LED
       sleep(1 if mode == 1 else 0.5)
 
     pwm.stop()
+    GPIO.cleanup()
     if quit_flag.value: # 点滅が終わったらチェックして終了（これは放置）
       break
 
@@ -53,7 +54,7 @@ if __name__ == "__main__": # テストするならif文内に
   from multiprocessing import Value, Array
   led_brink(
     Value('i', 1), # quit_flag = True
-    Value('i', 60), # pwm = 60[%]
+    Value('i', 40), # pwm = 60[%]
     Value('i', 0), # mode = 0
     Array('i', [0,1,0]) # [R,G,B] = [0,1,0]
   ) 

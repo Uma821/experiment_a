@@ -23,6 +23,13 @@ python2系と3系が共存している可能性がある場合， `sudo pip3 ins
 `sudo apt-get install chromium-browser`
 を行ってください。
 
+また，I2C16x2LCDを接続するため，I2Cの準備を行ってください．ラズパイのI2Cがenabledになっているかどうか確認してください．
+さらに実行時に `smbus.SMBus(1)`の行にエラーが発生した場合は， `sudo apt-get install python-smbus` と `sudo apt-get install i2c-tools`を実行してみてください．
+
+接続機器のアドレスがわからない場合は `i2cdetect -y 1` で確認してください．
+
+SPIについてもラズパイがenabledになっているか確認してください．
+
 ## 動作環境
 
 Python==

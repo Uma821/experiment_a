@@ -144,7 +144,9 @@ class LCD1602A:
             self.put_char(byte_data) # 普通の文字
 
     def check_writable(self, c):
-        if c >= 0x06 and c <= 0xff :
+        if 0x06 <= c <= 0xff:
             return c
+        elif 0xFF61 <= c <= 0xFF9F: # UTF-16->ASCII 半角カナ
+            return c - 0xFF61 + 0xA1
         else:
             return 0x20 # 空白文字

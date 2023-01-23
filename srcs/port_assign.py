@@ -12,7 +12,7 @@ BUZZER_PORT = 21
 CDS_PORT = 0 
 INFRARED_PORT = None # 人感センサー
 
-# LCD_PORT = None # I2Cのため必要ない
+LCD_ADDRESS = 0x27 # I2Cのため，アドレス指定
 
 spi = spidev.SpiDev()
 spi.open(0,0)
