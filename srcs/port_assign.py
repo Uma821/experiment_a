@@ -2,15 +2,17 @@ import sys # これは消さないし，絶対最初に置いとく
 sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 import spidev
 
-CDS_PORT = None
-# LCD_PORT = None # I2Cのため必要ない
-
+# GPIO ポート
 RLED_PORT = 24 # フルカラー赤
 GLED_PORT = 23 # フルカラー緑
 BLED_PORT = 18 # フルカラー青
 BUZZER_PORT = 21
 
+# ADコンバータ ポート
+CDS_PORT = 0 
 INFRARED_PORT = None # 人感センサー
+
+# LCD_PORT = None # I2Cのため必要ない
 
 spi = spidev.SpiDev()
 spi.open(0,0)
