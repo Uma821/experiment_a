@@ -5,7 +5,7 @@ import RPi.GPIO as GPIO
 from time import sleep
 import spidev
 
-def led_brink(quit_flag, duty, mode, color): # LED
+def led_brink(quit_flag, duty, mode, color, enable): # LED
   # dutyの値が高いと
   # mode=1なら1秒ごとに点滅切り替え, 2なら0.5秒ごとに点滅切り替え
   # color=[R, G, B] どれかがTrueになっているはず
@@ -18,27 +18,27 @@ def led_brink(quit_flag, duty, mode, color): # LED
   while True:
     if(color[0]):
       # 外部より指定したPWMのデューティ比で点灯時の明るさを指定
-      # GPIO.output(port_assign.RLED_PORT, GPIO.HIGH) # pwm 100% になる
+      # GPIO.output(port_assign.RLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW) # pwm 100% になる
       pwm = GPIO.PWM(port_assign.RLED_PORT, 50) # (Pin, Hz) 
-      pwm.start(duty.value) # 初期デューティ比
+      pwm.start(duty.value if enable.value else 0) # 初期デューティ比
       sleep(1 if mode == 1 else 0.5) # modeで指定した一定期間待つ
       # GPIO.output(port_assign.RLED_PORT, GPIO.LOW) 
       pwm.ChangeDutyCycle(0) # 0%
       sleep(1 if mode == 1 else 0.5)
 
     elif(color[1]):
-      # GPIO.output(port_assign.GLED_PORT, GPIO.HIGH) 
+      # GPIO.output(port_assign.GLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW) 
       pwm = GPIO.PWM(port_assign.GLED_PORT, 50) # (Pin, Hz)
-      pwm.start(duty.value)
+      pwm.start(duty.value if enable.value else 0)
       sleep(1 if mode == 1 else 0.5)
       # GPIO.output(port_assign.GLED_PORT, GPIO.LOW) 
       pwm.ChangeDutyCycle(0) # 0%
       sleep(1 if mode == 1 else 0.5)
       
     elif(color[2]):
-      # GPIO.output(port_assign.BLED_PORT, GPIO.HIGH) 
+      # GPIO.output(port_assign.BLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW) 
       pwm = GPIO.PWM(port_assign.BLED_PORT, 50) # (Pin, Hz)
-      pwm.start(duty.value)
+      pwm.start(duty.value if enable.value else 0)
       sleep(1 if mode == 1 else 0.5)
       # GPIO.output(port_assign.BLED_PORT, GPIO.LOW) 
       pwm.ChangeDutyCycle(0) # 0%
@@ -53,8 +53,9 @@ def led_brink(quit_flag, duty, mode, color): # LED
 if __name__ == "__main__": # テストするならif文内に
   from multiprocessing import Value, Array
   led_brink(
-    Value('i', 1), # quit_flag = True
-    Value('i', 40), # pwm = 60[%]
-    Value('i', 0), # mode = 0
-    Array('i', [0,1,0]) # [R,G,B] = [0,1,0]
+    Value('i', 1),       # quit_flag = True
+    Value('i', 40),      # pwm = 60[%]
+    Value('i', 0),       # mode = 0
+    Array('i', [0,1,0]), # [R,G,B] = [0,1,0]
+    Value('i', 1)        # enable = True
   ) 

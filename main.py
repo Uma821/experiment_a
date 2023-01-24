@@ -8,36 +8,39 @@ from srcs.led_brink import *
 from srcs.cds_sensing import *
 from srcs.infrared_sensing import *
 from srcs.line_commu import *
+from srcs.utils import clip
 
 timers = {}
 led_process = {"quit_flag": Value('i', 0), # quit_flag = false
-              "pwm": Value('i', 0), "mode": Value('i', 0), "color": Array('i', [0,0,0])} # [R,G,B]=[F,F,F]
+               "pwm": Value('i', 0), "mode": Value('i', 0),
+               "color": Array('i', [0,0,0]), "enable": Value('i', 1)} # [R,G,B]=[F,F,F]
 
 def multiprocess_caller():
   led_process["led"] = Process(target=led_brink, kwargs=led_process) # args=(CdS_caller.data)
   led_process["led"].start()
 
-def CdS_caller():
-  timers["CdS"] = Timer(1, CdS_caller)
+def cds_caller(): # CdSの値によってLEDの明るさが決まる
+  timers["CdS"] = Timer(1, cds_caller)
   timers["CdS"].start()
-  CdS_sensing()
+  cds_sensing() # 読み取りデータは0~4095の範囲内
+  led_process["pwm"].value = 100 - int(clip(cds_sensing.data/30 - 30, 0, 100)) # 任意の最小値・最大値に収める
 
 def infrared_caller():
   timers["inf"] = Timer(10, infrared_caller)
   timers["inf"].start()
-  infrared_sensing()
+  led_process["enable"].value = infrared_sensing()
 
 if __name__ == "__main__":
   try: # 初期化処理
     # line_init() # これが一番初め
-    CdS_caller()
+    cds_caller()
     infrared_caller()
     multiprocess_caller()
 
     while True:
       print("aaaaa")
       sleep(3)
-      # CdS_sensing()
+      # cds_sensing()
       
   except KeyboardInterrupt:
     for timer in timers.values():
