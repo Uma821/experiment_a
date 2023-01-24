@@ -30,9 +30,34 @@ python2系と3系が共存している可能性がある場合， `sudo pip3 ins
 
 SPIについてもラズパイがenabledになっているか確認してください．
 
+Ngrokも使用しますので､ インストールしましょう｡
+
+```
+$ wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm.tgz
+$ tar -xzvf ngrok-v3-stable-linux-arm.tgz
+$ sudo mv ngrok /usr/local/bin/
+$ ngrok version
+ngrok version 3.1.1
+```
+の流れでインストールして､そしてngrokサイトからアカウントを作成し自分のAuthtokenを `ngrok config add-authtoken <token>` の形式で入力して設定しておきます｡
+
 ## 動作環境
 
-Python==
+ngrok==3.1.1
+Python==3.9.2
 Flask==1.0.2
 line-bot-sdk==1.8.0
 urllib3==1.23
+
+
+## 実行方法
+
+まず､main.pyを動作させましょう｡
+現在サーバーをローカルの8080ポートに建てているので､別ターミナルから
+`ngrok http 8080`
+を実行します｡これで外部に公開されるURL(https://........ngrok.io)が表示されるので､
+これをLINEの公式アカウントのWebhook URLに設定してください｡
+
+ここまで行けば､うまく動いているはずです！
+
+

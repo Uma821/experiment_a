@@ -12,7 +12,7 @@ from srcs.utils import clip
 
 timers = {}
 led_process = {"quit_flag": Value('i', 0), # quit_flag = false
-               "pwm": Value('i', 0), "mode": Value('i', 0),
+               "duty": Value('i', 0), "mode": Value('i', 0),
                "color": Array('i', [0,0,0]), "enable": Value('i', 1)} # [R,G,B]=[F,F,F]
 
 def multiprocess_caller():
@@ -23,7 +23,7 @@ def cds_caller(): # CdSの値によってLEDの明るさが決まる
   timers["CdS"] = Timer(1, cds_caller)
   timers["CdS"].start()
   cds_sensing() # 読み取りデータは0~4095の範囲内
-  led_process["pwm"].value = 100 - int(clip(cds_sensing.data/30 - 30, 0, 100)) # 任意の最小値・最大値に収める
+  led_process["duty"].value = 100 - int(clip(cds_sensing.data/30 - 30, 0, 100)) # 任意の最小値・最大値に収める
 
 def infrared_caller():
   timers["inf"] = Timer(10, infrared_caller)
@@ -32,7 +32,7 @@ def infrared_caller():
 
 if __name__ == "__main__":
   try: # 初期化処理
-    # line_init() # これが一番初め
+    line_init() # これが一番初め
     cds_caller()
     infrared_caller()
     multiprocess_caller()
@@ -43,6 +43,7 @@ if __name__ == "__main__":
       # cds_sensing()
       
   except KeyboardInterrupt:
+    line_fin()
     for timer in timers.values():
       timer.cancel()
     led_process["quit_flag"].value = 1 # 脱出

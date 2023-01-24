@@ -4,9 +4,15 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 import platform, time
+from multiprocessing import Process
 
 
+server = None
 def line_init():
+  global server
+  server = Process(target=app.run, kwargs={"host": "localhost", "port": 8080}) # ポート番号を8080に指定 
+  server.start() 
+    
   options = Options()
   if platform.system() == "Linux" and platform.machine() == "armv7l":  
     # if raspi(linux 32bitはwebdriver_manager非対応)
@@ -16,13 +22,17 @@ def line_init():
     from webdriver_manager.chrome import ChromeDriverManager
     service = Service(ChromeDriverManager().install())
   driver = webdriver.Chrome(options=options, service=service)
-  driver.get("https://account.line.biz/signup")
+  driver.get("https://developers.line.biz/console/")
 
   try:
     while True:
       time.sleep(1)
   except KeyboardInterrupt:
     driver.quit() # 終了処理(Chromeの場合)
+
+def line_fin():
+  server.terminate()
+  server.join()
 
 
 import lineconfig   #環境変数のインポート
@@ -133,6 +143,6 @@ def selectwords(commandtext): #対応する言葉を選択
     reply = "こんにちは"
     return reply
 
-if __name__ == "__main__":#最後に置かないと関数エラーが出るので注意！
+if __name__ == "__main__": #最後に置かないと関数エラーが出るので注意！
     app.run(host="localhost", port=8080) # ポート番号を8080に指定
 
