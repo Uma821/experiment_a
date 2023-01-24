@@ -2,21 +2,27 @@ import time, sys # これは消さないし，絶対最初に置いとく
 sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.chrome import service as fs
-from selenium.common.exceptions import NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+import platform, time
 
 
 def line_init():
   options = Options()
-  chrome_service = fs.Service(executable_path=ChromeDriverManager().install())
-  driver = webdriver.Chrome(options=options, service=chrome_service)
+  if platform.system() == "Linux" and platform.machine() == "armv7l":  
+    # if raspi(linux 32bitはwebdriver_manager非対応)
+    options.BinaryLocation = ("/usr/bin/chromium-browser") # chromium使用
+    service = Service("/usr/bin/chromedriver")
+  else: # not raspi and use Chrome
+    from webdriver_manager.chrome import ChromeDriverManager
+    service = Service(ChromeDriverManager().install())
+  driver = webdriver.Chrome(options=options, service=service)
   driver.get("https://account.line.biz/signup")
+
+  try:
+    while True:
+      time.sleep(1)
+  except KeyboardInterrupt:
+    driver.quit() # 終了処理(Chromeの場合)
 
 
 import lineconfig   #環境変数のインポート
@@ -121,10 +127,7 @@ def handle_unfollow(event): # MessageEvent インスタンスが渡される
     # if event.reply_token == "00000000000000000000000000000000": # 有効なreplyTokenではない
     #     return
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text="フォローありがとうございます！")
-    )
+    pass
 
 def selectwords(commandtext): #対応する言葉を選択
     reply = "こんにちは"
