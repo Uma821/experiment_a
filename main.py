@@ -29,6 +29,23 @@ def infrared_caller():
   timers["inf"] = Timer(10, infrared_caller)
   timers["inf"].start()
   led_process["enable"].value = infrared_sensing()
+  
+def change_led_mode(bus_sorted_list):
+  if not bus_sorted_list: # 深夜などで運行情報がない場合
+    led_process["color"][0] = 0
+    led_process["color"][1] = 0
+    led_process["color"][2] = 0 # 全部消灯
+    return
+  if bus_sorted_list[0][-1] <= 5: # 青点滅
+    led_process["color"][0] = 0
+    led_process["color"][1] = 0
+    led_process["color"][2] = 1
+    led_process["mode"].value = 1
+  elif bus_sorted_list[0][-1] <= 2: # 赤高速点滅
+    led_process["color"][0] = 1
+    led_process["color"][1] = 0
+    led_process["color"][2] = 0
+    led_process["mode"].value = 2
 
 if __name__ == "__main__":
   try: # 初期化処理
@@ -38,9 +55,9 @@ if __name__ == "__main__":
     led_caller()
 
     while True:
-      print("aaaaa")
-      sleep(3)
-      # cds_sensing()
+      print(d:=scraping_kuruken(["https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1"]))
+      sleep(60)
+      change_led_mode(d)
       
   except KeyboardInterrupt:
     line_fin()

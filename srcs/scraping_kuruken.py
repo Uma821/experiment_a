@@ -10,6 +10,9 @@ import platform
 from bs4 import BeautifulSoup
 
 
+def sort_bus_data(bus_data_list):
+  return sorted(bus_data_list, lambda x: float('inf') if x[-1] is None x[-1])
+
 def find_bus_data(page_source):
   daiya_list = BeautifulSoup(page_source, "html.parser").find(id="approach_list_for_daiya")
   bus_datas = []
@@ -46,7 +49,7 @@ def scraping_kuruken(sites):
     page_sources.append(driver.page_source)
   
   driver.quit() # 終了処理(Chromeの場合)
-  return [find_bus_data(page_source) for page_source in page_sources]
+  return [sort_bus_data(find_bus_data(page_source)) for page_source in page_sources]
 
 if __name__ == "__main__": # テストするならこのif文の中で
   print(scraping_kuruken(["https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1"]))
