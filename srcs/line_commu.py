@@ -69,21 +69,21 @@ def createRichmenu():
         size = RichMenuSize(width=2500, height=843),
         selected = False,
         name = "Nice richmenu",
-        chat_bar_text = "バス情報登録・確認方法チェックはこちらから！",
+        chat_bar_text = "Click here", # 短文じゃないとだめ？
         areas = [
             RichMenuArea(
                 bounds = RichMenuBounds(x=0, y=0, width=1250, height=843),
                 action = # URIAction(label='Go to line.me', uri='https://line.me')
-                    MessageAction(label="バス停スケジュールを確認", text="「通知スケジュール」や「通知スケジュール確認」と送信してください")
+                    MessageAction(label="バス停スケジュールを確認", text="通知スケジュール確認") # 自分が言ったことになる
             ), RichMenuArea(
                 bounds = RichMenuBounds(x=1250, y=0, width=1250, height=843),
-                action = MessageAction(label="バス停スケジュールを設定", text="「通知スケジュール設定」と送信してください")
+                action = MessageAction(label="バス停スケジュールを設定", text="通知スケジュール設定")
             )
         ]
     )
     rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu_to_create)
 
-    with open("../imgs/rich_menu.png", "rb") as f:
+    with open("imgs/rich_menu.png", "rb") as f: # 実行時，カレントディレクトリはmain.py視点
         line_bot_api.set_rich_menu_image(rich_menu_id, "image/png", f)
     
     line_bot_api.set_default_rich_menu(rich_menu_id)
