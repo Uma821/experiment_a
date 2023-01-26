@@ -15,7 +15,7 @@ led_process = {"quit_flag": Value('i', 0), # quit_flag = false
                "duty": Value('i', 0), "mode": Value('i', 0),
                "color": Array('i', [0,0,0]), "enable": Value('i', 1)} # [R,G,B]=[F,F,F]
 
-def multiprocess_caller():
+def led_caller():
   led_process["led"] = Process(target=led_brink, kwargs=led_process) # args=(CdS_caller.data)
   led_process["led"].start()
 
@@ -32,10 +32,10 @@ def infrared_caller():
 
 if __name__ == "__main__":
   try: # 初期化処理
-    line_init() # これが一番初め
+    line_init() # line用のwebサーバ(flask)を実行する
     cds_caller()
     infrared_caller()
-    multiprocess_caller()
+    led_caller()
 
     while True:
       print("aaaaa")

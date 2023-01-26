@@ -8,12 +8,16 @@ from multiprocessing import Process
 
 
 server = None
-def line_init():
+def line_init(open_browser=True):
   global server
   server = Process(target=app.run, kwargs={"host": "localhost", "port": 8080}) # ポート番号を8080に指定 
   server.start() 
-    
+  
+  if not open_browser: # ブラウザ開かない設定
+    return
+  
   options = Options()
+  options.add_experimental_option('detach', True) # 関数終了後もChromeを開いたままにする
   if platform.system() == "Linux" and platform.machine() == "armv7l":  
     # if raspi(linux 32bitはwebdriver_manager非対応)
     options.BinaryLocation = ("/usr/bin/chromium-browser") # chromium使用
@@ -24,11 +28,12 @@ def line_init():
   driver = webdriver.Chrome(options=options, service=service)
   driver.get("https://developers.line.biz/console/")
 
-  try:
-    while True:
-      time.sleep(1)
-  except KeyboardInterrupt:
-    driver.quit() # 終了処理(Chromeの場合)
+  # try:
+  #   while True:
+  #     time.sleep(1)
+  # except KeyboardInterrupt:
+  #   driver.quit() # 終了処理(Chromeの場合)
+  
 
 def line_fin():
   server.terminate()
