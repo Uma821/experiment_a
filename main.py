@@ -24,25 +24,29 @@ def cds_caller(): # CdSの値によってLEDの明るさが決まる
   timers["CdS"] = Timer(1, cds_caller)
   timers["CdS"].start()
   cds_sensing() # 読み取りデータは0~4095の範囲内
-  led_process["duty"].value = 100 - int(clip(cds_sensing.data/30 - 30, 0, 100)) # 任意の最小値・最大値に収める
+  led_process["duty"].value = 100 - int(clip(cds_sensing.data/18 - 90, 0, 100)) # 任意の最小値・最大値に収める
+  # print(cds_sensing.data/18) # 明るい(60)、通常(135) 暗い(210)
 
 def infrared_caller():
   timers["inf"] = Timer(10, infrared_caller)
   timers["inf"].start()
-  led_process["enable"].value = infrared_sensing()
+  # led_process["enable"].value = infrared_sensing() # 初期設定のまま(人がいることにする)
   
 def change_led_mode(bus_sorted_list):
-  if not bus_sorted_list: # 深夜などで運行情報がない場合
+  # 複数のバスサイトをスクレイピングできるが、ラズパイ側は１サイトだけ([0]の意)
+  if (not bus_sorted_list[0]) or (bus_sorted_list[0][0][-1] is None):
+    # 深夜などで運行情報がない場合 or 来るけどこの先当分来ない
     led_process["color"][0] = 0
     led_process["color"][1] = 0
     led_process["color"][2] = 0 # 全部消灯
     return
-  if bus_sorted_list[0][-1] <= 5: # 青点滅
+
+  if int(bus_sorted_list[0][0][-1]) <= 5: # 青点滅
     led_process["color"][0] = 0
     led_process["color"][1] = 0
     led_process["color"][2] = 1
     led_process["mode"].value = 1
-  elif bus_sorted_list[0][-1] <= 2: # 赤高速点滅
+  elif int(bus_sorted_list[0][0][-1]) <= 2: # 赤高速点滅
     led_process["color"][0] = 1
     led_process["color"][1] = 0
     led_process["color"][2] = 0
@@ -50,15 +54,16 @@ def change_led_mode(bus_sorted_list):
 
 if __name__ == "__main__":
   try: # 初期化処理
-    line_init() # line用のwebサーバ(flask)を実行する
+    line_init(False) # line用のwebサーバ(flask)を実行する
     cds_caller()
     infrared_caller()
     led_caller()
 
     while True:
-      print(d:=scraping_kuruken(["https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1"]))
+      bus_data=scraping_kuruken(["https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1"])
+      print(bus_data)
       sleep(60)
-      change_led_mode(d)
+      change_led_mode(bus_data)
       
   except KeyboardInterrupt:
     line_fin()

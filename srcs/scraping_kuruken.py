@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 
 def sort_bus_data(bus_data_list):
-  return sorted(bus_data_list, lambda x: float('inf') if x[-1] is None else x[-1])
+  return sorted(bus_data_list, key=lambda x: float('inf') if x[-1] is None else float(x[-1]))
 
 def find_bus_data(page_source):
   daiya_list = BeautifulSoup(page_source, "html.parser").find(id="approach_list_for_daiya")

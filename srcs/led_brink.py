@@ -17,12 +17,12 @@ def led_brink(quit_flag, duty, mode, color, enable): # LED
   pwms = [None, None, None] # [R, G, B]
 
   while True:
-    pwm = None
+    print("led")
     if(color[0]):
       # 外部より指定したPWMのデューティ比で点灯時の明るさを指定
       # GPIO.output(port_assign.RLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW) # pwm 100% になる
       if pwms[0] is None: # まだ一度も赤LEDはPWMをしていない
-        pwms[0] = GPIO.PWM(port_assign.RLED_PORT, 50) # (Pin, Hz) 
+        pwms[0] = GPIO.PWM(port_assign.RLED_PORT, 100) # (Pin, Hz) 
         pwms[0].start(duty.value if enable.value else 0) # 初期デューティ比
       else:
         pwms[0].ChangeDutyCycle(duty.value if enable.value else 0)
@@ -34,7 +34,7 @@ def led_brink(quit_flag, duty, mode, color, enable): # LED
     elif(color[1]):
       # GPIO.output(port_assign.GLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW)
       if pwms[1] is None:
-        pwms[1] = GPIO.PWM(port_assign.GLED_PORT, 50) # (Pin, Hz)
+        pwms[1] = GPIO.PWM(port_assign.GLED_PORT, 100) # (Pin, Hz)
         pwms[1].start(duty.value if enable.value else 0)
       else:
         pwms[1].ChangeDutyCycle(duty.value if enable.value else 0)
@@ -46,7 +46,7 @@ def led_brink(quit_flag, duty, mode, color, enable): # LED
     elif(color[2]):
       # GPIO.output(port_assign.BLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW)
       if pwms[2] is None:
-        pwms[2] = GPIO.PWM(port_assign.BLED_PORT, 50) # (Pin, Hz)
+        pwms[2] = GPIO.PWM(port_assign.BLED_PORT, 100) # (Pin, Hz)
         pwms[2].start(duty.value if enable.value else 0)
       else:
         pwms[2].ChangeDutyCycle(duty.value if enable.value else 0)
