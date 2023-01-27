@@ -1,10 +1,11 @@
-import time, sys # これは消さないし，絶対最初に置いとく
+import sys # これは消さないし，絶対最初に置いとく
 sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 import platform, time
 from multiprocessing import Process
+from sqlite_manage import *
 
 
 server = None
@@ -119,6 +120,7 @@ def handle_follow(event): # MessageEvent インスタンスが渡される
         )
     
     createRichmenu() # リッチメニュー設定
+    createNewRow(event.source.user_id) # DBに，ユーザーIDの列を追加する
 
 
 @handler.add(MessageEvent, message=TextMessage) # テキストメッセージが送られた際の操作

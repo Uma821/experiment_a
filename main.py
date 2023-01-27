@@ -9,6 +9,7 @@ from srcs.cds_sensing import *
 from srcs.infrared_sensing import *
 from srcs.line_commu import *
 from srcs.utils import clip
+from srcs.scraping_kuruken import scraping_kuruken
 
 timers = {}
 led_process = {"quit_flag": Value('i', 0), # quit_flag = false
