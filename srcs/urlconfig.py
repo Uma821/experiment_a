@@ -1,0 +1,2 @@
+OUTBOUND_URL = "https://kuruken.jp/Approach?sid=b31e050b-fcb5-4b18-b15e-dbbd8c401583&noribaChange=1" # 行きのURL
+INBOUND_URL  = "https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1" # 帰りのURL

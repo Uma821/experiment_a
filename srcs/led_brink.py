@@ -54,7 +54,9 @@ def led_brink(quit_flag, duty, mode, color, enable): # LED
       # GPIO.output(port_assign.BLED_PORT, GPIO.LOW) 
       pwms[2].ChangeDutyCycle(0) # 0%
       sleep(1 if mode.value == 1 else 0.5)
-
+      
+    else: # 何色でもないとき
+      sleep(0.5) # 高速ループ抑止
       
     if quit_flag.value: # 点滅が終わったらチェックして終了（これは放置）
       for pwm in pwms:

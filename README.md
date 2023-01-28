@@ -10,10 +10,11 @@
 
 |  ソースコード上表記  |  pip install上表記  |
 | ----------------- | ----------------- |
-|    selenium       |      selenium     |
+|     selenium      |      selenium     |
 |        bs4        |   beautifulsoup4  |
 | webdriver_manager | webdriver_manager |
 |      linebot      |    line-bot-sdk   |
+|     pykakasi      |      pykakasi     |
 
 python2系と3系が共存している可能性がある場合， `sudo pip3 install ○○` としてください．
 そして，ラズパイ使用者はchromedriverをダウンロードするため，chromium-chromedriverをインストールする必要があります．
