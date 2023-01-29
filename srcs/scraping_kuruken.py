@@ -16,8 +16,18 @@ class Bus_scraping_data:
   approach_list: list[str,str,str,str]
 
 
-def sort_bus_data(bus_data_list):
+def sort_bus_data(bus_data_list): # Noneの場合補完するようになったが、そのままにしている
   return sorted(bus_data_list, key=lambda x: float('inf') if x[-1] is None else float(x[-1]))
+
+def complement_delay_time(bus_scraping_data): # 3つ分のバス時刻を取得
+  from datetime import datetime, timedelta, timezone
+  # JSTタイムゾーンを作成
+  jst = timezone(timedelta(hours=9), 'JST')
+
+  for approach_list in bus_scraping_data:
+    arrive_arrangement = datetime.now(jst).replace(hour=int(approach_list[0][0:-3]), minute=int(approach_list[0][-2:]))-datetime.now(jst) # 予定到着時間
+    approach_list[-1] = arrive_arrangement.seconds//60 if approach_list[-1] is None else int(approach_list[-1]) # 到着時刻がないときは到着予定時刻で代替
+  return bus_scraping_data
 
 def find_bus_data(page_source):
   bs = BeautifulSoup(page_source, "html.parser")
@@ -25,15 +35,16 @@ def find_bus_data(page_source):
   bus_datas = []
   for daiya in daiya_list.find_all("li", limit=3):
     (time, course_name, delay_minutes) = daiya.tr("td") # 1列目には到着時刻，目的(経由)地，残り時間が示される find_all
-    bus_datas.append((
+    bus_datas.append([
       time.text.strip(), 
       course_name.a.text, 
       dict(enumerate(getattr(course_name.div, "stripped_strings", [None]))).get(1), # course_name.div.stringが存在しないならNone (経由地が存在しない)
       '1' if "soon" in delay_minutes["class"] else dict(enumerate(delay_minutes.div.stripped_strings)).get(1), # 存在しないときにNoneにさせたい
-    )) # (到着時刻，目的地，経由地，目標時間) 
-  return Bus_scraping_data(bs.find(id="keywordDepartText").string, sort_bus_data(bus_datas))
+    ]) # (到着時刻，目的地，経由地，目標時間)
+  return Bus_scraping_data(bs.find(id="keywordDepartText").string, sort_bus_data(complement_delay_time(bus_datas))) # Noneを補完した後ソートする
 
 def scraping_kuruken(sites):
+  print(f"scraping {len(sites)}sites")
   options = Options()
   options.add_argument('--headless')
 
