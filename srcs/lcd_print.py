@@ -10,7 +10,7 @@ lcd.setup()
 def LCD_print(message): # LCDに文字列表示，message[0]に1行目，message[1]に2行目データ，lcd_onで表示/非表示切り替え
   # 第二回資料を参照のこと
 
-  # lcd.clear()
+  lcd.clear()
   # sleep(0.3)
   lcd.write_string(message[0])
   lcd.newline()
@@ -21,4 +21,4 @@ def LCD_clear():
   lcd.clear()
 
 if __name__ == "__main__": # テストするならif文内に
-  LCD_print(["ｱｱｱWelcome to", "Jikken Alphal!"], True)
+  LCD_print(["ｱｱｱWelcome to", "Jikken Alphal!"])

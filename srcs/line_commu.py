@@ -3,7 +3,7 @@ sys.dont_write_bytecode = True # これは消さない，絶対最初に置い�
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-import platform, time
+import platform, time, re
 from multiprocessing import Process
 from sqlite_manage import *
 
@@ -120,7 +120,7 @@ def handle_follow(event): # MessageEvent インスタンスが渡される
         )
     
     createRichmenu() # リッチメニュー設定
-    createNewRow(event.source.user_id) # DBに，ユーザーIDの列を追加する
+    DB_create_new_row(event.source.user_id) # DBに，ユーザーIDの列を追加する
 
 
 @handler.add(MessageEvent, message=TextMessage) # テキストメッセージが送られた際の操作
@@ -130,8 +130,12 @@ def handle_message(event): # MessageEvent インスタンスが渡される
     req  = request.json["events"][0]
     userMessage = req["message"]["text"]
 
-
-    replymessage = selectwords(userMessage)
+    (def_outbound_url, def_inbound_url, shedule_list) = try_get_schedule(userMessage) # スケジュール指定方式
+    if shedule_list: # マッチした場合
+        DB_update_schedule_data(event.source.user_id, def_outbound_url, def_inbound_url, shedule_list)
+        replymessage = selectwords(userMessage, True)
+    else:
+        replymessage = selectwords(userMessage, False)
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -143,11 +147,31 @@ def handle_message(event): # MessageEvent インスタンスが渡される
 def handle_unfollow(event): # MessageEvent インスタンスが渡される
     # if event.reply_token == "00000000000000000000000000000000": # 有効なreplyTokenではない
     #     return
+    DB_delete_schedule_data(event.source.user_id)
 
-    pass
+def send_line_message(approach_list, user_id_set):
+    for user_id in user_id_set:
+        line_bot_api.push_message(
+            user_id,
+            TextSendMessage(text=f"{approach_list[1]}行のバスがあと{approach_list[-1]}分({approach_list[0]}予定)で到着します。")
+        )
 
-def selectwords(commandtext): #対応する言葉を選択
-    reply = "こんにちは"
+def try_get_schedule(commandtext):
+    match_data = re.match(r'(\S*),\s*(\S*),\s*(\(\S*,\s*\d,\s*\d,\s*\d+,\s*\d+,\s*\d+,\s*\d+\),?)+$', commandtext)
+    if match_data is None: return (None, None, []) # マッチしなかった場合
+    return (match_data.group(1),match_data.group(2),re.findall('\(([^,]*),\s*(\d),\s*(\d),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)', match_data.group(3)))
+
+def selectwords(commandtext, shedule_ok): # 対応する言葉を選択
+    if shedule_ok: # スケジュール指定として評価できた場合
+        reply = "スケジュール設定しました。数分後から反映されます。"
+    elif commandtext == "通知スケジュール確認":
+        reply = "大変申し訳ありません、通知スケジュール確認機能は現在ご使用できません。"
+    elif commandtext == "通知スケジュール設定":
+        reply = """'[行きのデフォルトURL]','[帰りのデフォルトURL]',('[URL]',[デフォルトを使うなら行き(0)帰り(1)]',[曜日(0~6)],[開始時],[開始分],[終了時],[終了分])... の形式で入力してください。
+例：'https://kuruken.jp/Approach?sid=b31e050b-fcb5-4b18-b15e-dbbd8c401583&noribaChange=1','https://kuruken.jp/Approach?sid=8cdf9206-6a32-4ba9-8d8c-5dfdc07219ca&noribaChange=1',(None,0,0,7,30,9,0)(None,1,3,17,30,19,0)
+0(月曜日)に7:30から9:00まで行きのバスを確認、3(木曜日)に17:30から19:00まで帰りのバスを確認する設定になります。(URLを個別指定する場合では行き帰り指定は無視されますが0か1を記述する必要があります。)"""
+    else:
+        reply = "すみません、よくわかりません"
     return reply
 
 if __name__ == "__main__": #最後に置かないと関数エラーが出るので注意！

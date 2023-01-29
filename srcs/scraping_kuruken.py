@@ -44,7 +44,6 @@ def find_bus_data(page_source):
   return Bus_scraping_data(bs.find(id="keywordDepartText").string, sort_bus_data(complement_delay_time(bus_datas))) # Noneを補完した後ソートする
 
 def scraping_kuruken(sites):
-  print(f"scraping {len(sites)}sites")
   options = Options()
   options.add_argument('--headless')
 
