@@ -41,8 +41,10 @@ def find_cursor_people(default_cursor_dict):
     jst = timezone(timedelta(hours=9), 'JST')
     now_time = datetime.now(jst)
 
-    for (userid,def_outbound_url,def_inbound_url) in cur.execute("SELECT * FROM schedule"):
-        for (url,out_in,weekday,start_hour,start_min,end_hour,end_min) in cur.execute(f"SELECT * FROM schedule{userid}"):
+    cur.execute("SELECT * FROM schedule")
+    for (userid,def_outbound_url,def_inbound_url) in cur.fetchall():
+        cur.execute(f"SELECT * FROM schedule{userid}")
+        for (url,out_in,weekday,start_hour,start_min,end_hour,end_min) in cur.fetchall():
             if now_time.weekday() == weekday and now_time.replace(hour=start_hour, minute=start_min) <= now_time <= now_time.replace(hour=end_hour, minute=end_min): # 今該当するか
                 scraping_url = (def_outbound_url if out_in == 0 else def_inbound_url) if url is None else url
                 default_cursor_dict[scraping_url] = default_cursor_dict.get(scraping_url, {}) | {userid}

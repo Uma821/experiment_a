@@ -4,6 +4,7 @@ import urlconfig, queue, threading
 from time import sleep
 from sqlite_manage import find_cursor_people
 from scraping_kuruken import scraping_kuruken
+from line_commu import send_line_message
 
 FORCE_SCRAPING_INTERVAL = 10 # 必要がなくてもスクレイピングして様子を見るインターバル
 
@@ -29,7 +30,7 @@ def gen_scraping_urls(scheduling_dict):
   return scraping_urls
 
 def scheduler_check_DB(): # データベースの値を読み取る(たまに更新されてるかもしれないので今は1分毎に確認するようにしてる(排他制御は大丈夫かわからん))
-  cursor_dict = {urlconfig.OUTBOUND_URL:1, urlconfig.INBOUND_URL:1} # 今注目している人がいるか
+  cursor_dict = {urlconfig.OUTBOUND_URL:{0}, urlconfig.INBOUND_URL:{0}} # 今注目している人がいるか(userIDの集合、0はラズパイ自身)
   find_cursor_people(cursor_dict)
 
   for url in scraping_scheduler.scheduling_dict: # もともと収集中
@@ -46,10 +47,11 @@ def scraping_scheduler_init():
 
 def send_line_management():
   for (current_set,bus_data,scraping_space) in scraping_scheduler.scheduling_dict.values():
-    # 注目されてない、まだスクレイピングされてない、今データない
-    if not current_set or bus_data is None or not bus_data.approach_list: continue
-    if bus_data.approach_list[0][-1] == 5: # 5分前にlineする
-      send_line_message(bus_data.approach_list[0], current_set)
+    # 注目されてない、まだスクレイピングされてない
+    if not (current_set-{0}) or bus_data is None: continue
+    for approach_list in bus_data.approach_list:
+      if approach_list[-1] == 5: # 先頭要素じゃなくてもいいからバス停車5分前にlineする
+        send_line_message(approach_list[0], current_set-{0}) # 0番はラズパイ自身なので該当しない
 
 def scraping_scheduler():
   urls_queue = queue.Queue() # 同期キューの作成
@@ -69,7 +71,8 @@ def scraping_scheduler():
         scraping_scheduler.scheduling_dict[url][2] += 1 # スクレイピングせず更に1分経過
         if bus_data is None: continue
         for approach_list in bus_data.approach_list:
-          approach_list[-1] -= 1
+          if approach_list[-1] not in [0,6]: # 0に1分引かれるとスクレイピングされなくなる&5分前通知なので6分のときはスクレイピングして残り5分を得たい
+            approach_list[-1] -= 1
 
   except KeyboardInterrupt:
     print("只今終了処理中です...")

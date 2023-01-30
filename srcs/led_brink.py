@@ -17,7 +17,6 @@ def led_brink(quit_flag, duty, mode, color, enable): # LED
   pwms = [None, None, None] # [R, G, B]
 
   while True:
-    print("led")
     if(color[0]):
       # 外部より指定したPWMのデューティ比で点灯時の明るさを指定
       # GPIO.output(port_assign.RLED_PORT, GPIO.HIGH if enable.value else GPIO.LOW) # pwm 100% になる
