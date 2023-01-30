@@ -1,4 +1,4 @@
-from threading import Timer
+from threading import Timer, Thread
 from multiprocessing import Process, Value, Array
 import sys
 sys.path.append("srcs") # 相対パスimportしようとしたが，子プログラムからも実行するときにバグるので検索ディレクトリを追加することにした
@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 import pykakasi, jaconv # 漢字->カタカナ->ｶﾀｶﾅ
 import srcs.port_assign as port_assign
 import srcs.urlconfig as urlconfig
-from srcs.buzzer_ring import *
+from srcs.buzzer_ring import buzzer_ring
 from srcs.led_brink import *
 from srcs.lcd_print import *
 from srcs.cds_sensing import *
@@ -21,8 +21,9 @@ from srcs.scraping_scheduler import (
 
 timers = {}
 led_process = {"quit_flag": Value('i', 0), # quit_flag = false
-               "duty": Value('i', 0), "mode": Value('i', 1),
+               "duty": Value('i', 0), "mode": Value('i', 0),
                "color": Array('i', [0,1,0]), "enable": Value('i', 1)} # [R,G,B]=[F,T,F] # 初期状態緑点滅
+buzzer_thread = {"stop_flag": Value('i', 0)} # quit_flag = false
 
 def led_caller():
   led_process["led"] = Process(target=led_brink, kwargs=led_process) # args=(CdS_caller.data)
@@ -46,6 +47,7 @@ def change_led_mode(bus_scraping_data):
     led_process["color"][0] = 0
     led_process["color"][1] = 0
     led_process["color"][2] = 0 # 全部消灯
+    led_process["mode"].value = 0
     return
 
   if bus_scraping_data.approach_list[0][-1] <= 2: # 赤高速点滅
@@ -54,6 +56,14 @@ def change_led_mode(bus_scraping_data):
     led_process["color"][2] = 0
     led_process["mode"].value = 2
   elif bus_scraping_data.approach_list[0][-1] <= 5: # 青点滅
+    if led_process["mode"].value != 1: # 初めてやってきた
+      if "buzzer" in buzzer_thread:
+        buzzer_thread["stop_flag"].value = 1
+        buzzer_thread["buzzer"].join()
+      buzzer_thread["stop_flag"].value = 0 # 念の為
+      buzzer_thread["buzzer"] = Process(target=buzzer_ring, args=(buzzer_thread["stop_flag"],))
+      buzzer_thread["buzzer"].start()
+
     led_process["color"][0] = 0
     led_process["color"][1] = 0
     led_process["color"][2] = 1
@@ -114,6 +124,9 @@ if __name__ == "__main__":
       timer.cancel()
     led_process["quit_flag"].value = 1 # 脱出
     led_process["led"].join()
+    buzzer_thread["stop_flag"].value = 1
+    if "buzzer" in buzzer_thread:
+      buzzer_thread["buzzer"].join()
   
   GPIO.remove_event_detect(port_assign.SWITCH_PORT)
   GPIO.cleanup()
