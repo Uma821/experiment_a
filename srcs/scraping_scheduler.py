@@ -35,7 +35,7 @@ def scheduler_check_DB(): # データベースの値を読み取る(たまに更
   find_cursor_people(cursor_dict)
 
   for url in scraping_scheduler.scheduling_dict: # もともと収集中
-    scraping_scheduler.scheduling_dict[url][0] = cursor_dict.get(url, {})
+    scraping_scheduler.scheduling_dict[url][0] = cursor_dict.get(url, {}) # todo:注目する人がいないなら、そのアイテム削除
   for url in cursor_dict.keys() - scraping_scheduler.scheduling_dict.keys(): # 新規追加
     scraping_scheduler.scheduling_dict[url] = [cursor_dict[url],None,FORCE_SCRAPING_INTERVAL] # スクレイピング必要
 

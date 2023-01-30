@@ -26,7 +26,7 @@ def complement_delay_time(bus_scraping_data): # 3つ分のバス時刻を取得
 
   for approach_list in bus_scraping_data:
     arrive_arrangement = datetime.now(jst).replace(hour=int(approach_list[0][0:-3]), minute=int(approach_list[0][-2:]))-datetime.now(jst) # 予定到着時間
-    approach_list[-1] = arrive_arrangement.seconds//60 if approach_list[-1] is None else int(approach_list[-1]) # 到着時刻がないときは到着予定時刻で代替
+    approach_list[-1] = arrive_arrangement.seconds//60 if approach_list[-1] is None else int(approach_list[-1] if approach_list[-1].isdecimal() else arrive_arrangement.seconds//60) # 到着時刻がないとき・整数でないとき('分遅れで運行予定'等)は到着予定時刻で代替
   return bus_scraping_data
 
 def find_bus_data(page_source):
