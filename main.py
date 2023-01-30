@@ -95,7 +95,7 @@ def display_manager_caller():
 def set_bus_direction(channel):
   sleep(0.1) # チャタリング防止
   set_bus_direction.direction = GPIO.input(channel)
-  if timers.get("disp", None) is not None:
+  if "disp" in timers: # タイマーがすでに存在している
     timers["disp"].cancel()
     display_manager_caller()
 
@@ -108,8 +108,8 @@ if __name__ == "__main__":
     cds_caller()
     pir_caller()
     led_caller()
-    # callback関数登録（GPIO.BOTH:立上り立下りエッジ検出、bouncetime:100ms）
-    GPIO.add_event_detect(port_assign.SWITCH_PORT, GPIO.BOTH, bouncetime=100,
+    # callback関数登録（GPIO.BOTH:立上り立下りエッジ検出、bouncetime:200ms）
+    GPIO.add_event_detect(port_assign.SWITCH_PORT, GPIO.BOTH, bouncetime=200,
       callback=set_bus_direction)
     set_bus_direction(port_assign.SWITCH_PORT)
 

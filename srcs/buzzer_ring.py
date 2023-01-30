@@ -42,7 +42,7 @@ def buzzer_ring(stop_flag): # ブザーを鳴らす
       break
 
   p.stop()
-  GPIO.cleanup()
+  GPIO.cleanup(port_assign.BUZZER_PORT) # すべてのpinが開放されるのを防ぐ
 
 if __name__ == "__main__": # テストするならif文内に
   from multiprocessing import Value, Array
