@@ -1,6 +1,7 @@
 import sys # これは消さないし，絶対最初に置いとく
 sys.dont_write_bytecode = True # これは消さない，絶対最初に置いとく
-import urlconfig, queue, threading
+import urlconfig, queue
+from threading import Timer, Thread
 from time import sleep
 from sqlite_manage import find_cursor_people
 from scraping_kuruken import scraping_kuruken
@@ -45,25 +46,37 @@ def scraping_scheduler_init():
       urlconfig.INBOUND_URL : [{0},None,FORCE_SCRAPING_INTERVAL]  # 必要としてる人のUserIDの集合とした(ラズパイは0)
     }
 
+def send_line_management_caller():
+  send_line_management_caller.timer = Timer(10, send_line_management_caller)
+  send_line_management_caller.timer.start()
+  send_line_management()
+
 def send_line_management():
-  for (current_set,bus_data,scraping_space) in scraping_scheduler.scheduling_dict.values():
+  for url, (current_set,bus_data,scraping_space) in scraping_scheduler.scheduling_dict.items():
     # 注目されてない、まだスクレイピングされてない
     if not (current_set-{0}) or bus_data is None: continue
     for approach_list in bus_data.approach_list:
       if approach_list[-1] == 5: # 先頭要素じゃなくてもいいからバス停車5分前にlineする
-        send_line_message(approach_list[0], current_set-{0}) # 0番はラズパイ自身なので該当しない
+        send_id = {userid for userid in current_set-{0} if send_line_management.isSended.get((url, userid),False) == False}
+        send_line_message(approach_list, send_id) # 0番はラズパイ自身なので該当しない
+        for userid in send_id:
+          send_line_management.isSended[(url, userid)] = True # DBから追加されるタイミングの影響で微妙に通知するタイミングが異なったとしても、最終的に全部Trueになると予想する
+        break
+    else: # (一回そのバスの分の通知を行い、)そのバスは通り過ぎた
+      for userid in current_set-{0}:
+        send_line_management.isSended[(url, userid)] = False # また通知できる
 
 def scraping_scheduler():
   urls_queue = queue.Queue() # 同期キューの作成
 
   try:
-    thread = threading.Thread(target=scraper_caller,
-        args=(urls_queue, scraping_scheduler.scheduling_dict), daemon=True) # デーモンスレッドでプロセス終了時に勝手に終わらせる
+    thread = Thread(target=scraper_caller, args=(urls_queue, scraping_scheduler.scheduling_dict), daemon=True) # デーモンスレッドでプロセス終了時に勝手に終わらせる
     thread.start()
+    send_line_management.isSended={}
+    send_line_management_caller()
 
     while True:
       scheduler_check_DB()
-      send_line_management()
       urls_queue.put(gen_scraping_urls(scraping_scheduler.scheduling_dict))
 
       sleep(60) # 大体1分経ったとき(常のスクレイピングするわけではないのでそもそも精度は低い)
@@ -76,5 +89,6 @@ def scraping_scheduler():
 
   except KeyboardInterrupt:
     print("只今終了処理中です...")
+    send_line_management_caller.timer.cancel()
     urls_queue.join() # キューに入れたすべてのアイテムが消費されるまで待つ
     raise KeyboardInterrupt
