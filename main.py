@@ -33,8 +33,8 @@ def cds_caller(): # CdSの値によってLEDの明るさが決まる
   timers["CdS"] = Timer(1, cds_caller)
   timers["CdS"].start()
   cds_sensing() # 読み取りデータは0~4095の範囲内
-  led_process["duty"].value = 100 - int(clip(cds_sensing.data/18 - 90, 0, 100)) # 任意の最小値・最大値に収める
-  # print(cds_sensing.data/18) # 明るい(60)、通常(135) 暗い(210)
+  led_process["duty"].value = 100 - int(clip(cds_sensing.data/18 - 80, 0, 100)) # 任意の最小値・最大値に収める
+  # print(cds_sensing.data/18) # 明るい(60)、通常(135) 暗い(210) # もっと明るい場合もある
 
 def pir_caller():
   timers["pir"] = Timer(10, pir_caller)

@@ -12,7 +12,7 @@ def pir_sensing(): # 人感センサーで人を確認
     # print("PIR: Ture")
     return True
   else:
-    print("PIR: False")
+    # print("PIR: False")
     return False # 気配がある時はTrue ない時はFalse
 
   GPIO.cleanup()
